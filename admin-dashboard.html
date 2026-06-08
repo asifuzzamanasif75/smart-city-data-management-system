@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart City Data Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            padding: 0.75rem 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-badge {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn {
+            padding: 0.6rem;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .hero-section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .stat-icon {
+            font-size: 1.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+        }
+
+        .stat-icon.blue { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .stat-icon.green { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .stat-icon.yellow { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .stat-icon.red { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .chart-container h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Admin Controls Section */
+        .admin-controls {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-controls h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .control-btn {
+            padding: 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .control-btn i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-btn h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .control-btn p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Data Table */
+        .data-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        td {
+            padding: 1rem;
+            color: #334155;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-tabs {
+                width: 100%;
+                justify-content: flex-start;
+                overflow-x: auto;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-content">
+                <div class="logo">
+                    <h1>🏙️ Smart City Data Management System - Admin Panel</h1>
+                </div>
+
+                <div class="dashboard-tabs">
+                    <button class="tab-btn active" onclick="switchTab('user')">
+                        <i class="fas fa-eye"></i> User View
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('admin')">
+                        <i class="fas fa-user-shield"></i> Admin Controls
+                    </button>
+                </div>
+
+                <div class="nav-right">
+                    <div class="admin-badge">
+                        <i class="fas fa-crown"></i> ADMIN
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <span id="usernameDisplay">Admin</span>
+                    </div>
+                    <button class="icon-btn" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- USER VIEW TAB -->
+        <div id="userTab" class="tab-content active">
+            <div class="hero-section">
+                <h2>🌆 Smart City Data Management System Overview</h2>
+                <p>Real-time monitoring and management of city infrastructure</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3>Traffic Status</h3>
+                        <i class="fas fa-car stat-icon blue"></i>
+                    </div>
+                    <p class="stat-value">5</p>
+                    <p class="stat-label">Active zones monitored</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3>Air Quality</h3>
+                        <i class="fas fa-wind stat-icon green"></i>
+                    </div>
+                    <p class="stat-value">108</p>
+                    <p class="stat-label">AQI - Moderate</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3>Energy Usage</h3>
+                        <i class="fas fa-bolt stat-icon yellow"></i>
+                    </div>
+                    <p class="stat-value">13.8k</p>
+                    <p class="stat-label">kWh today</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3>Active Alerts</h3>
+                        <i class="fas fa-exclamation-triangle stat-icon red"></i>
+                    </div>
+                    <p class="stat-value">5</p>
+                    <p class="stat-label">Emergency incidents</p>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-line"></i> Traffic Congestion</h3>
+                    <canvas id="trafficChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-pie"></i> Energy Consumption</h3>
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-bar"></i> Air Quality Status</h3>
+                    <canvas id="pollutionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-area"></i> Emergency Response</h3>
+                    <canvas id="emergencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN CONTROLS TAB -->
+        <div id="adminTab" class="tab-content">
+            <div class="hero-section">
+                <h2>⚙️ Administrator Controls</h2>
+                <p>Manage system settings, users, and data</p>
+            </div>
+
+            <div class="admin-controls">
+                <h3><i class="fas fa-sliders-h"></i> System Management</h3>
+                <div class="control-buttons">
+                    <div class="control-btn" onclick="manageUsers()">
+                        <i class="fas fa-users-cog"></i>
+                        <h4>Manage Users</h4>
+                        <p>Add, edit, or remove users</p>
+                    </div>
+                    <div class="control-btn" onclick="systemSettings()">
+                        <i class="fas fa-cog"></i>
+                        <h4>System Settings</h4>
+                        <p>Configure system parameters</p>
+                    </div>
+                    <div class="control-btn" onclick="viewReports()">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Generate Reports</h4>
+                        <p>Create detailed analytics</p>
+                    </div>
+                    <div class="control-btn" onclick="backupData()">
+                        <i class="fas fa-database"></i>
+                        <h4>Backup Data</h4>
+                        <p>Export system database</p>
+                    </div>
+                    <div class="control-btn" onclick="auditLogs()">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>Audit Logs</h4>
+                        <p>View system activity</p>
+                    </div>
+                    <div class="control-btn" onclick="notifications()">
+                        <i class="fas fa-bell"></i>
+                        <h4>Notifications</h4>
+                        <p>Manage alerts & messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h3>Registered Users</h3>
+                    <button class="action-btn" onclick="addUser()">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h3>System Statistics</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Total Users</h3>
+                            <i class="fas fa-users stat-icon blue"></i>
+                        </div>
+                        <p class="stat-value" id="totalUsers">0</p>
+                        <p class="stat-label">Registered accounts</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Admin Accounts</h3>
+                            <i class="fas fa-user-shield stat-icon green"></i>
+                        </div>
+                        <p class="stat-value" id="totalAdmins">0</p>
+                        <p class="stat-label">Administrator access</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Regular Users</h3>
+                            <i class="fas fa-user stat-icon yellow"></i>
+                        </div>
+                        <p class="stat-value" id="totalRegularUsers">0</p>
+                        <p class="stat-label">Standard access</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <h3>Data Records</h3>
+                            <i class="fas fa-database stat-icon red"></i>
+                        </div>
+                        <p class="stat-value">87</p>
+                        <p class="stat-label">Total database entries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check admin authentication
+        const loggedInUser = JSON.parse(window.localStorage.getItem("loggedInUser"));
+
+        if (!loggedInUser) {
+            window.location.href = "login.html";
+        } else if (loggedInUser.role !== 'admin') {
+            alert('Access Denied! Admin privileges required.');
+            window.location.href = "user-dashboard.html";
+        } else {
+            document.getElementById("usernameDisplay").textContent = loggedInUser.username.charAt(0).toUpperCase() + loggedInUser.username.slice(1);
+            loadUsersTable();
+            updateUserStats();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'user') {
+                document.querySelector('.tab-btn').classList.add('active');
+                document.getElementById('userTab').classList.add('active');
+                setTimeout(initCharts, 100);
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('adminTab').classList.add('active');
+            }
+        }
+
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                window.localStorage.removeItem("loggedInUser");
+                window.location.href = "login.html";
+            }
+        }
+
+        function loadUsersTable() {
+            const users = JSON.parse(window.localStorage.getItem('smartCityUsers') || '[]');
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span style="background: ${user.role === 'admin' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">${user.role.toUpperCase()}</span></td>
+                    <td><span style="color: #10b981;">Active</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="table-btn edit-btn" onclick="editUser(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="table-btn delete-btn" onclick="deleteUser(${index})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateUserStats() {
+            const users = JSON.parse(window.localStorage.getItem('smartCityUsers') || '[]');
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalAdmins').textContent = users.filter(u => u.role === 'admin').length;
+            document.getElementById('totalRegularUsers').textContent = users.filter(u => u.role === 'user').length;
+        }
+
+        function addUser() {
+            const username = prompt('Enter username:');
+            const email = prompt('Enter email:');
+            const password = prompt('Enter password:');
+            const role = prompt('Enter role (admin/user):');
+
+            if (username && email && password && role) {
+                const users = JSON.parse(window.localStorage.getItem('smartCityUsers') || '[]');
+                users.push({ username, email, password, role });
+                window.localStorage.setItem('smartCityUsers', JSON.stringify(users));
+                loadUsersTable();
+                updateUserStats();
+                alert('User added successfully!');
+            }
+        }
+
+        function editUser(index) {
+            alert('Edit user functionality - Index: ' + index);
+        }
+
+        function deleteUser(index) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                const users = JSON.parse(window.localStorage.getItem('smartCityUsers') || '[]');
+                users.splice(index, 1);
+                window.localStorage.setItem('smartCityUsers', JSON.stringify(users));
+                loadUsersTable();
+                updateUserStats();
+                alert('User deleted successfully!');
+            }
+        }
+
+        function manageUsers() { alert('Manage Users panel'); }
+        function systemSettings() { alert('System Settings panel'); }
+        function viewReports() { alert('Generate Reports panel'); }
+        function backupData() { alert('Backup Data initiated'); }
+        function auditLogs() { alert('Audit Logs viewer'); }
+        function notifications() { alert('Notifications manager'); }
+
+        // Initialize Charts
+        function initCharts() {
+            const trafficCtx = document.getElementById('trafficChart');
+            if (trafficCtx && !trafficCtx.chart) {
+                new Chart(trafficCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Main St', 'Highway', 'CBD', 'Airport', 'Industrial'],
+                        datasets: [{
+                            label: 'Vehicles',
+                            data: [245, 180, 320, 95, 150],
+                            backgroundColor: ['rgba(239, 68, 68, 0.8)', 'rgba(251, 191, 36, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(251, 191, 36, 0.8)'],
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const energyCtx = document.getElementById('energyChart');
+            if (energyCtx && !energyCtx.chart) {
+                new Chart(energyCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Residential', 'Industrial', 'Commercial', 'Hospital', 'Education'],
+                        datasets: [{
+                            data: [1500, 4200, 2800, 3500, 1800],
+                            backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(251, 191, 36, 0.8)', 'rgba(168, 85, 247, 0.8)']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+
+            const pollutionCtx = document.getElementById('pollutionChart');
+            if (pollutionCtx && !pollutionCtx.chart) {
+                new Chart(pollutionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Downtown', 'Industrial', 'Park', 'Highway', 'Coastal'],
+                        datasets: [{
+                            label: 'AQI',
+                            data: [145, 198, 78, 165, 55],
+                            backgroundColor: ['rgba(251, 191, 36, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(251, 191, 36, 0.8)', 'rgba(34, 197, 94, 0.8)'],
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+
+            const emergencyCtx = document.getElementById('emergencyChart');
+            if (emergencyCtx && !emergencyCtx.chart) {
+                new Chart(emergencyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Fire', 'Accident', 'Medical', 'Flood', 'Outage'],
+                        datasets: [{
+                            label: 'Response Time (min)',
+                            data: [6.75, 8.5, 5.42, 25, 44.58],
+                            borderColor: 'rgb(139, 92, 246)',
+                            backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+        }
+
+        Chart.defaults.devicePixelRatio = 2;
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initCharts, 100));
+    </script>
+</body>
+</html>
